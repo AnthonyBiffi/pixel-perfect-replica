@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import logoCompleto from "@/assets/logo.png";
+import logoChama from "@/assets/logo-chama.png";
 
 const NAV = [
   { label: "Início", href: "#inicio" },
@@ -29,8 +31,23 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:h-20">
-        <a href="#inicio" className="font-display text-2xl tracking-[0.3em] uppercase">
-          Bscent
+        <a href="#inicio" className="flex items-center" aria-label="Bscent Candles – Página inicial">
+          {/* Desktop: logo completo */}
+          <img
+            src={logoCompleto}
+            alt="Bscent Candles"
+            width={130}
+            height={79}
+            className="hidden h-10 w-auto object-contain sm:block"
+          />
+          {/* Mobile: só a chama */}
+          <img
+            src={logoChama}
+            alt="Bscent"
+            width={28}
+            height={72}
+            className="h-9 w-auto object-contain sm:hidden"
+          />
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">

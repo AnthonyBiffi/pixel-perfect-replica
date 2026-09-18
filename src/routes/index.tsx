@@ -13,6 +13,8 @@ import {
 } from "@/data/bscent";
 import { useBscentData } from "@/hooks/useBscentData";
 import hero from "@/assets/hero.jpg";
+import logoCompleto from "@/assets/logo.png";
+import logoChama from "@/assets/logo-chama.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -67,6 +69,13 @@ function Index() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/10" />
           <div className="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-5 pb-14 sm:pb-20">
             <Reveal>
+              <img
+                src={logoCompleto}
+                alt="Bscent Candles"
+                width={260}
+                height={158}
+                className="mb-6 h-16 w-auto object-contain opacity-90 sm:h-20"
+              />
               <p className="eyebrow">Fragrâncias artesanais para casa</p>
               <h1 className="mt-4 max-w-2xl text-4xl leading-[1.12] sm:text-6xl">
                 Criada para transformar ambientes.
@@ -353,7 +362,15 @@ function Index() {
         <div className="mx-auto max-w-6xl px-5 py-16">
           <div className="grid gap-10 sm:grid-cols-3">
             <div>
-              <p className="font-display text-2xl tracking-[0.3em] uppercase">Bscent</p>
+              <a href="#inicio" className="inline-block" aria-label="Bscent Candles">
+                <img
+                  src={logoCompleto}
+                  alt="Bscent Candles"
+                  width={130}
+                  height={79}
+                  className="h-12 w-auto object-contain"
+                />
+              </a>
               <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
                 Fragrâncias artesanais para casa, feitas em pequenos lotes no Brasil.
               </p>
