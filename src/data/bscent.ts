@@ -18,7 +18,23 @@ export type Product = {
   category: string;
   description: string;
   image: string;
-  isNew?: boolean;
+  price?: string | undefined;
+  isNew?: boolean | undefined;
+  featured?: boolean | undefined;
+};
+
+export type Aroma = {
+  id?: string | undefined;
+  name?: string | undefined;
+  title?: string | undefined;
+  top?: string | undefined;
+  heart?: string | undefined;
+  base?: string | undefined;
+  topNotes?: string | undefined;
+  heartNotes?: string | undefined;
+  baseNotes?: string | undefined;
+  story?: string | undefined;
+  description?: string | undefined;
 };
 
 export const CATEGORIES = [
@@ -186,3 +202,18 @@ export const TESTIMONIALS = [
     author: "Renata M.",
   },
 ];
+
+export const products = PRODUCTS;
+export const aromas: Aroma[] = SCENTS.map((s, index) => ({
+  id: `scent-${index}`,
+  title: s.name,
+  name: s.name,
+  description: s.story,
+  story: s.story,
+  topNotes: s.top,
+  heartNotes: s.heart,
+  baseNotes: s.base,
+  top: s.top,
+  heart: s.heart,
+  base: s.base,
+}));

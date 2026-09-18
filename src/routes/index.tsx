@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Header } from "@/components/bscent/Header";
 import { Faq } from "@/components/bscent/Faq";
@@ -8,11 +8,10 @@ import { cn } from "@/lib/utils";
 import {
   CATEGORIES,
   LINKS,
-  PRODUCTS,
-  SCENTS,
   TESTIMONIALS,
   type Product,
 } from "@/data/bscent";
+import { useBscentData } from "@/hooks/useBscentData";
 import hero from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
@@ -38,14 +37,18 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { products, aromas, loading } = useBscentData();
   const [category, setCategory] = useState<string>("Todos");
   const [selected, setSelected] = useState<Product | null>(null);
 
   const filtered = useMemo(
-    () => (category === "Todos" ? PRODUCTS : PRODUCTS.filter((p) => p.category === category)),
-    [category],
+    () => (category === "Todos" ? products : products.filter((p) => p.category === category)),
+    [category, products],
   );
-  const highlights = PRODUCTS.filter((p) => p.isNew);
+  const highlights = useMemo(() => {
+    const news = products.filter((p) => p.isNew);
+    return news.length > 0 ? news.slice(0, 6) : products.slice(0, 3);
+  }, [products]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -139,33 +142,44 @@ function Index() {
           </div>
 
           <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-3">
-            {filtered.map((p, i) => (
-              <Reveal key={p.id} delay={(i % 3) * 100} as="article">
-                <div className="group flex h-full flex-col">
-                  <div className="overflow-hidden bg-sand">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      loading="lazy"
-                      width={912}
-                      height={1104}
-                      className="aspect-[4/5] w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
-                    />
+            {filtered.length === 0 ? (
+              <div className="col-span-full py-12 text-center text-sm text-muted-foreground">
+                Nenhum produto encontrado nesta categoria.
+              </div>
+            ) : (
+              filtered.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 3) * 100} as="article">
+                  <div className="group flex h-full flex-col">
+                    <div className="overflow-hidden bg-sand">
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        loading="lazy"
+                        width={912}
+                        height={1104}
+                        className="aspect-[4/5] w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                      />
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <p className="eyebrow">{p.category}</p>
+                      {p.price && (
+                        <span className="text-xs font-medium text-foreground tracking-wide">{p.price}</span>
+                      )}
+                    </div>
+                    <h3 className="mt-1 text-lg leading-snug sm:text-xl">{p.name}</h3>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      {p.description}
+                    </p>
+                    <button
+                      onClick={() => setSelected(p)}
+                      className="btn-base btn-outline mt-4 w-full hover:bg-secondary"
+                    >
+                      Onde comprar
+                    </button>
                   </div>
-                  <p className="eyebrow mt-4">{p.category}</p>
-                  <h3 className="mt-1 text-lg leading-snug sm:text-xl">{p.name}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                    {p.description}
-                  </p>
-                  <button
-                    onClick={() => setSelected(p)}
-                    className="btn-base btn-outline mt-4 w-full hover:bg-secondary"
-                  >
-                    Onde comprar
-                  </button>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -182,24 +196,38 @@ function Index() {
         </Reveal>
 
         <div className="mt-12 grid gap-px bg-border sm:grid-cols-2">
-          {SCENTS.map((s, i) => (
-            <Reveal key={s.name} delay={(i % 2) * 100} className="bg-background p-7 sm:p-9">
-              <h3 className="text-2xl">{s.name}</h3>
-              <p className="mt-2 text-sm text-muted-foreground italic">{s.story}</p>
-              <dl className="mt-6 space-y-2 text-xs tracking-wide">
-                {[
-                  ["Saída", s.top],
-                  ["Corpo", s.heart],
-                  ["Fundo", s.base],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex gap-3">
-                    <dt className="w-16 shrink-0 uppercase text-taupe">{k}</dt>
-                    <dd className="text-foreground">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            </Reveal>
-          ))}
+          {aromas.length === 0 ? (
+            <div className="col-span-full bg-background p-8 text-center text-sm text-muted-foreground">
+              Nenhum aroma cadastrado no momento.
+            </div>
+          ) : (
+            aromas.map((s, i) => {
+              const title = s.title || s.name || "Sem título";
+              const story = s.description || s.story || "";
+              const top = s.top || s.topNotes || "";
+              const heart = s.heart || s.heartNotes || "";
+              const base = s.base || s.baseNotes || "";
+
+              return (
+                <Reveal key={s.id || title || i} delay={(i % 2) * 100} className="bg-background p-7 sm:p-9">
+                  <h3 className="text-2xl">{title}</h3>
+                  {story && <p className="mt-2 text-sm text-muted-foreground italic">{story}</p>}
+                  <dl className="mt-6 space-y-2 text-xs tracking-wide">
+                    {[
+                      ["Saída", top],
+                      ["Corpo", heart],
+                      ["Fundo", base],
+                    ].map(([k, v]) => (
+                      <div key={k} className="flex gap-3">
+                        <dt className="w-16 shrink-0 uppercase text-taupe">{k}</dt>
+                        <dd className="text-foreground">{v || "—"}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </Reveal>
+              );
+            })
+          )}
         </div>
       </section>
 
@@ -221,7 +249,7 @@ function Index() {
             <h2 className="mt-3 text-3xl sm:text-4xl">
               Lembranças que ficam na memória — e no ambiente
             </h2>
-            <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-5 text-sm leading-relaxed text-foreground">
               Casamentos, aniversários e presentes corporativos. Produzimos grandes volumes com
               aroma, rótulo, cor e embalagem desenvolvidos junto com você, mantendo o acabamento
               artesanal em cada unidade.
@@ -283,7 +311,7 @@ function Index() {
             <h2 className="mt-3 text-3xl sm:text-4xl">@bscent.oficial</h2>
           </Reveal>
           <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {PRODUCTS.slice(0, 4).map((p, i) => (
+            {products.slice(0, 4).map((p, i) => (
               <Reveal key={p.id} delay={i * 90}>
                 <a href={LINKS.instagram} target="_blank" rel="noreferrer" className="block overflow-hidden bg-sand">
                   <img
@@ -386,9 +414,16 @@ function Index() {
               </ul>
             </div>
           </div>
-          <p className="mt-14 border-t border-border pt-6 text-xs tracking-wide text-muted-foreground">
-            © {new Date().getFullYear()} Bscent. Todos os direitos reservados.
-          </p>
+          <div className="mt-14 flex flex-col items-center justify-between gap-2 border-t border-border pt-6 text-xs tracking-wide text-muted-foreground sm:flex-row">
+            <p>© {new Date().getFullYear()} Bscent. Todos os direitos reservados.</p>
+            <Link
+              to="/admin"
+              className="text-[11px] text-muted-foreground/50 transition-colors hover:text-foreground"
+              title="Painel Administrativo"
+            >
+              Área restrita
+            </Link>
+          </div>
         </div>
       </footer>
 
