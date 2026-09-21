@@ -5,16 +5,10 @@ import { Faq } from "@/components/bscent/Faq";
 import { BuyModal } from "@/components/bscent/BuyModal";
 import { Reveal } from "@/components/Reveal";
 import { cn } from "@/lib/utils";
-import {
-  CATEGORIES,
-  LINKS,
-  TESTIMONIALS,
-  type Product,
-} from "@/data/bscent";
-import { useBscentData } from "@/hooks/useBscentData";
+import { CATEGORIES, LINKS, TESTIMONIALS } from "@/data/bscent";
+import { useBscentData, type Product } from "@/hooks/useBscentData";
 import hero from "@/assets/hero.jpg";
 import logoCompleto from "@/assets/logo.png";
-import logoChama from "@/assets/logo-chama.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -47,10 +41,19 @@ function Index() {
     () => (category === "Todos" ? products : products.filter((p) => p.category === category)),
     [category, products],
   );
+  
   const highlights = useMemo(() => {
     const news = products.filter((p) => p.isNew);
     return news.length > 0 ? news.slice(0, 6) : products.slice(0, 3);
   }, [products]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,7 +113,7 @@ function Index() {
                 <div className="overflow-hidden bg-sand">
                   <img
                     src={p.image}
-                    alt={p.name}
+                    alt={p.name || p.title}
                     loading="lazy"
                     width={912}
                     height={1104}
@@ -118,7 +121,7 @@ function Index() {
                   />
                 </div>
                 <p className="eyebrow mt-4">{p.category}</p>
-                <h3 className="mt-1 text-xl">{p.name}</h3>
+                <h3 className="mt-1 text-xl">{p.name || p.title}</h3>
               </button>
             </Reveal>
           ))}
@@ -162,7 +165,7 @@ function Index() {
                     <div className="overflow-hidden bg-sand">
                       <img
                         src={p.image}
-                        alt={p.name}
+                        alt={p.name || p.title}
                         loading="lazy"
                         width={912}
                         height={1104}
@@ -172,10 +175,12 @@ function Index() {
                     <div className="mt-4 flex items-center justify-between">
                       <p className="eyebrow">{p.category}</p>
                       {p.price && (
-                        <span className="text-xs font-medium text-foreground tracking-wide">{p.price}</span>
+                        <span className="text-xs font-medium text-foreground tracking-wide">
+                          R$ {Number(p.price).toFixed(2)}
+                        </span>
                       )}
                     </div>
-                    <h3 className="mt-1 text-lg leading-snug sm:text-xl">{p.name}</h3>
+                    <h3 className="mt-1 text-lg leading-snug sm:text-xl">{p.name || p.title}</h3>
                     <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                       {p.description}
                     </p>
@@ -325,7 +330,7 @@ function Index() {
                 <a href={LINKS.instagram} target="_blank" rel="noreferrer" className="block overflow-hidden bg-sand">
                   <img
                     src={p.image}
-                    alt={`Cliente Bscent com ${p.name}`}
+                    alt={`Cliente Bscent com ${p.name || p.title}`}
                     loading="lazy"
                     width={912}
                     height={1104}
